@@ -4,7 +4,7 @@ DOTFILES_DIR=$HOME/.dotfiles
 SCRIPTS_DIR=$HOME/scripts
 NVIM_CONFIG_DIR=$HOME/.config/nvim
 VIMRC_PATH=$HOME/.vimrc
-CURRENT_DATE=$(printf -v date '%(%Y-%m-%d)T' -1)
+CURRENT_DATE=$(date +"%Y-%m-%d")
 
 if [[ ! -d "$DOTFILES_DIR" ]] then
   echo "Cloning repo"
