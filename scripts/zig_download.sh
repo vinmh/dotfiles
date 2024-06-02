@@ -1,3 +1,4 @@
+#!/bin/bash
 PLATFORM="x86_64-linux"
 INSTALL_DIR=$HOME/.local/share/zig
 PATH_DIR=$HOME/.local/bin
@@ -22,8 +23,9 @@ ln -fs $INSTALL_DIR/zig $PATH_DIR/zig
 # ZLS
 echo "Installing ZLS"
 git clone $ZLS_URL .tmp/zls
-cd .tmp/zls && \
-  zig build -Doptimize=ReleaseSafe
+(cd .tmp/zls && \
+  zig build -Doptimize=ReleaseSafe)
+
 
 # Cleanup
 rm -rf .tmp
