@@ -1,3 +1,4 @@
+#!/bin/bash
 REPO_URL="git@github.com:vinmh/dotfiles.git"
 DOTFILES_DIR=$HOME/.dotfiles
 SCRIPTS_DIR=$HOME/scripts
