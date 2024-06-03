@@ -4,7 +4,8 @@ local config_files = {
   'keymaps',
   'plugins',
   'colorscheme',
-  'lsp'
+  'lsp',
+  'tree',
 }
 
 for n in pairs(config_files) do

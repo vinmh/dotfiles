@@ -25,7 +25,28 @@ require("lazy").setup({
           end
   },
   {"L3MON4D3/LuaSnip", version = "v2.*"}, -- Code Snippet Engine
+  {"freddiehaddad/feline.nvim", opts={}, config = function() -- Statusline
+      require("config.feline")
+    end
+  },
+  {"Exafunction/codeium.vim", event = "BufEnter", config = function() -- LLM Auto-Completion
+      require("config.codeium")
+    end
+  },
   "williamboman/mason.nvim", -- Package Manager
   "williamboman/mason-lspconfig.nvim", -- LSP Package Installer
   "neovim/nvim-lspconfig",
+  "nvim-tree/nvim-tree.lua",
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter.configs").setup {
+	      ensure_installed = { 'vimdoc', 'vim', 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'cmake' },
+        sync_install = false,
+        highlight = { enable = true, },
+        indent = { enable = true},
+      }
+    end
+  }
 })
