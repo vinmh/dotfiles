@@ -1,4 +1,8 @@
-require("neo-tree").setup()
+require("neo-tree").setup({
+  filesystem = {
+    use_libuv_file_watcher = true,
+  },
+})
 
 -- Keybindings
 local opts = { noremap = true, silent = true }

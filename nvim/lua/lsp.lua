@@ -40,7 +40,7 @@ vim.keymap.set("n", "<Leader>q", vim.diagnostic.setloclist, opts)
 -- after the language server attaches to the current buffer
 local on_attach = function(client, bufnr)
 	-- Enable completion triggered by <c-x><c-o>
-	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+	vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
 
 	if client.name == "rust_analyzer" then
 		-- This requires Neovim 0.10 or later
@@ -63,13 +63,7 @@ local on_attach = function(client, bufnr)
 	vim.keymap.set("n", "<Leader>ca", vim.lsp.buf.code_action, bufopts)
 	vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
 	vim.keymap.set("n", "<Leader>f", function()
-		vim.lsp.buf.format({
-			async = true,
-			-- Only request null-ls for formatting
-			filter = function(client)
-				return client.name == "null-ls"
-			end,
-		})
+		vim.lsp.buf.format({ async = true })
 	end, bufopts)
 end
 

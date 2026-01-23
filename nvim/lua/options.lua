@@ -16,6 +16,7 @@ vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.showmode = false
+vim.opt.laststatus = 3
 
 -- Search
 vim.opt.incsearch = true

@@ -13,6 +13,13 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   {"catppuccin/nvim", name = "catppuccin", priority = 1000}, -- Colourscheme
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("config.lualine")
+    end,
+  },
   {"onsails/lspkind.nvim", event = { "VimEnter" }}, -- VSCode-style pictograms
   {"hrsh7th/nvim-cmp", dependencies = { -- Auto-completion Engine
                   "lspkind.nvim",
@@ -25,14 +32,6 @@ require("lazy").setup({
           end
   },
   {"L3MON4D3/LuaSnip", version = "v2.*"}, -- Code Snippet Engine
-  {"freddiehaddad/feline.nvim", opts={}, config = function() -- Statusline
-      require("config.feline")
-    end
-  },
-  {"Exafunction/codeium.vim", event = "BufEnter", config = function() -- LLM Auto-Completion
-      require("config.codeium")
-    end
-  },
   "williamboman/mason.nvim", -- Package Manager
   "williamboman/mason-lspconfig.nvim", -- LSP Package Installer
   "neovim/nvim-lspconfig",
@@ -56,5 +55,21 @@ require("lazy").setup({
         indent = { enable = true},
       }
     end
-  }
+  },
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup({
+        check_ts = true,
+      })
+    end,
+  },
+  {
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    config = function()
+      require("config.claudecode")
+    end,
+  },
 })
