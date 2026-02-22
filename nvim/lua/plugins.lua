@@ -47,7 +47,7 @@ require("lazy").setup({
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    config = function()
+  config = function()
       require("nvim-treesitter.configs").setup {
 	      ensure_installed = { 'vimdoc', 'vim', 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'cmake' },
         sync_install = false,
@@ -72,4 +72,27 @@ require("lazy").setup({
       require("config.claudecode")
     end,
   },
+  {
+    "Aietes/esp32.nvim"
+  },
+  {
+    's1n7ax/nvim-window-picker',
+    name = 'window-picker',
+    event = 'VeryLazy',
+    version = 'v2.*',
+    config = function()
+      require('window-picker').setup()
+    end,
+  },
+  {
+    'nvim-telescope/telescope.nvim', version = '*',
+    dependencies = {
+        'nvim-lua/plenary.nvim',
+        -- optional but recommended
+        { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+    },
+    config = function()
+      require("config.telescope")
+    end,
+  }
 })

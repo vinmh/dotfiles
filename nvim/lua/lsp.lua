@@ -1,5 +1,4 @@
--- Note Order: mason -> mason-lspconfig -> nvim-lspconfig
-
+-- Note Order: mason -> mason-lspconfig
 require('mason').setup({
   ui = {
     icons = {
@@ -10,6 +9,8 @@ require('mason').setup({
   }
 })
 
+-- nvim-lspconfig should still be installed as it provides the base configs
+-- but we don't require() it anymore
 require('mason-lspconfig').setup({
   ensure_installed = {
     'pylsp',
@@ -18,97 +19,88 @@ require('mason-lspconfig').setup({
     'zls',
     'clangd',
     'bashls'
-  }
+  },
+  -- mason-lspconfig v2 auto-enables by default, but being explicit:
+  automatic_enable = true
 })
 
--- Set different settings for different languages' LSP
--- LSP list: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
--- How to use setup({}): https://github.com/neovim/nvim-lspconfig/wiki/Understanding-setup-%7B%7D
---     - the settings table is sent to the LSP
---     - on_attach: a lua callback function to run after LSP attaches to a given buffer
-local lspconfig = require("lspconfig")
+local esp32 = require("esp32")
+local esp32_clangd_config = esp32.lsp_config()
 
--- Customized on_attach function
--- See `:help vim.diagnostic.*` for documentation on any of the below functions
+-- Global diagnostic keymaps (these don't need to be in on_attach)
 local opts = { noremap = true, silent = true }
 vim.keymap.set("n", "<Leader>e", vim.diagnostic.open_float, opts)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 vim.keymap.set("n", "<Leader>q", vim.diagnostic.setloclist, opts)
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
-local on_attach = function(client, bufnr)
-	-- Enable completion triggered by <c-x><c-o>
-	vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
+-- LspAttach autocmd replaces the on_attach function
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    local bufnr = ev.buf
 
-	if client.name == "rust_analyzer" then
-		-- This requires Neovim 0.10 or later
-		vim.lsp.inlay_hint.enable()
-	end
+    -- Enable completion triggered by <c-x><c-o>
+    vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
 
-	-- See `:help vim.lsp.*` for documentation on any of the below functions
-	local bufopts = { noremap = true, silent = true, buffer = bufnr }
-	vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-	vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-	vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-	vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-	vim.keymap.set("n", "<Leader>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-	vim.keymap.set("n", "<Leader>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
-	vim.keymap.set("n", "<Leader>wl", function()
-		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-	end, bufopts)
-	vim.keymap.set("n", "<Leader>D", vim.lsp.buf.type_definition, bufopts)
-	vim.keymap.set("n", "<Leader>rn", vim.lsp.buf.rename, bufopts)
-	vim.keymap.set("n", "<Leader>ca", vim.lsp.buf.code_action, bufopts)
-	vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-	vim.keymap.set("n", "<Leader>f", function()
-		vim.lsp.buf.format({ async = true })
-	end, bufopts)
+    -- Enable inlay hints for rust_analyzer
+    if client.name == "rust_analyzer" then
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
+
+    -- Buffer-local LSP keymaps
+    local bufopts = { noremap = true, silent = true, buffer = bufnr }
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
+    vim.keymap.set("n", "<Leader>wa", vim.lsp.buf.add_workspace_folder, bufopts)
+    vim.keymap.set("n", "<Leader>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
+    vim.keymap.set("n", "<Leader>wl", function()
+      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, bufopts)
+    vim.keymap.set("n", "<Leader>D", vim.lsp.buf.type_definition, bufopts)
+    vim.keymap.set("n", "<Leader>rn", vim.lsp.buf.rename, bufopts)
+    vim.keymap.set("n", "<Leader>ca", vim.lsp.buf.code_action, bufopts)
+    vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
+    vim.keymap.set("n", "<Leader>f", function()
+      vim.lsp.buf.format({ async = true })
+    end, bufopts)
+  end,
+})
+
+-- Server-specific configurations using vim.lsp.config
+-- lua_ls needs special configuration
+vim.lsp.config('lua_ls', {
+  settings = {
+    Lua = {
+      runtime = {
+        version = "LuaJIT",
+      },
+      diagnostics = {
+        globals = { "vim" },
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+      },
+      telemetry = {
+        enable = false,
+      },
+    },
+  },
+})
+
+if esp32_clangd_config then
+  vim.lsp.config('clangd', esp32_clangd_config)
 end
 
--- How to add a LSP for a specific language?
--- 1. Use `:Mason` to install the corresponding LSP.
--- 2. Add configuration below.
-lspconfig.pylsp.setup({
-	on_attach = on_attach,
-})
-
-lspconfig.lua_ls.setup({
-	on_attach = on_attach,
-	settings = {
-		Lua = {
-			runtime = {
-				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-				version = "LuaJIT",
-			},
-			diagnostics = {
-				-- Get the language server to recognize the `vim` global
-				globals = { "vim" },
-			},
-			workspace = {
-				-- Make the server aware of Neovim runtime files
-				library = vim.api.nvim_get_runtime_file("", true),
-			},
-			-- Do not send telemetry data containing a randomized but unique identifier
-			telemetry = {
-				enable = false,
-			},
-		},
-	},
-})
-
-lspconfig.bashls.setup({})
-
--- source: https://rust-analyzer.github.io/manual.html#nvim-lsp
-lspconfig.rust_analyzer.setup({
-	on_attach = on_attach,
-})
-
-lspconfig.clangd.setup({
-	on_attach = on_attach,
-})
-
-lspconfig.zls.setup({
-	on_attach = on_attach,
+-- Enable all the servers
+-- mason-lspconfig's automatic_enable should handle this, but if you want explicit control:
+vim.lsp.enable({
+  'pylsp',
+  'lua_ls',
+  'rust_analyzer',
+  'zls',
+  'clangd',
+  'bashls'
 })
