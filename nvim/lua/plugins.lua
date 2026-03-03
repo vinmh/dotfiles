@@ -76,6 +76,12 @@ require("lazy").setup({
     "Aietes/esp32.nvim"
   },
   {
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons"},
+    ft = {"markdown"},
+    opts = {}
+  },
+  {
     's1n7ax/nvim-window-picker',
     name = 'window-picker',
     event = 'VeryLazy',
