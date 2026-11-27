@@ -1,6 +1,10 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+# Machines: momiji = Fedora laptop (tree), umbriel = NixOS desktop.
+# Momiji-specific blocks are guarded by hostname; shared config is not.
+# Per-machine secrets live in ~/.zsh_secrets (gitignored, not in the repo).
+
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
 then
     PATH="$HOME/.local/bin:$HOME/bin:$PATH"
@@ -56,17 +60,14 @@ ZSH_THEME="nebirhos"
 # Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
 # COMPLETION_WAITING_DOTS="true"
 
-# Uncomment the following line if you want to disable marking untracked files
+# Uncomment the following line to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
 # much, much faster.
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
+# Uncomment the following line to enable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
@@ -81,20 +82,8 @@ plugins=(git python zsh-autosuggestions direnv docker zoxide fzf)
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
+# --- momiji only: TPM re-enrollment for its two encrypted volumes ---
+if [[ "$HOSTNAME" == momiji ]]; then
 reenroll_tpm () {
     echo "Enrolling for slow volume"
     sudo systemd-cryptenroll /dev/sda1 --wipe-slot=tpm2 --tpm2-device=auto --tpm2-pcrs=7
@@ -102,8 +91,10 @@ reenroll_tpm () {
     sudo systemd-cryptenroll /dev/nvme0n1p3 --wipe-slot=tpm2 --tpm2-device=auto --tpm2-pcrs=7
     echo "All Done!"
 }
+fi
 
-# Pyenv
+# --- momiji only: pyenv ---
+if [[ "$HOSTNAME" == momiji ]]; then
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
@@ -111,6 +102,20 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+fi
+
+# --- momiji only: logo + fortune ---
+if [[ "$HOSTNAME" == momiji ]]; then
+source "$HOME/.momiji_logo.sh"
+fortune -s
+fi
+
+# --- momiji only: Fedora / NVIDIA / ESP32 aliases ---
+if [[ "$HOSTNAME" == momiji ]]; then
+alias upgdsys="flatpak update && sudo dnf upgrade"
+alias primerun=__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
+alias get_idf='. $HOME/esp/v5.5/esp-idf/export.sh'
+fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -123,19 +128,14 @@ export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-source $HOME/.momiji_logo.sh
-fortune -s
 
-alias upgdsys="flatpak update && sudo dnf upgrade"
-alias primerun=__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
 alias docker=podman
 alias docker-compose=podman-compose
-alias get_idf='. $HOME/esp/v5.5/esp-idf/export.sh'
 alias cat=bat
-alias bw="flatpak run --command=bw com.bitwarden.desktop"
 
-unset rc
-. "$HOME/.cargo/env"
+if [ -f "$HOME/.cargo/env" ]; then
+  . "$HOME/.cargo/env"
+fi
 
 # Autostart
 eval "$(starship init zsh)"
