@@ -1,0 +1,22 @@
+{
+  "lastChangelogVersion": "1.5.2",
+  "theme": "dark",
+  "defaultProvider": "neuralwatt",
+  "defaultModel": "glm-5.3-flash",
+  "defaultThinkingLevel": "medium",
+  "packages": [
+    "../../code/pi-config",
+    "npm:@gotgenes/pi-permission-system@20.10.0",
+    "git:github.com/1broseidon/ketch",
+    "npm:pi-subagents",
+    "npm:@aliou/pi-neuralwatt"
+  ],
+  "defaultTools": [
+    "+codemode"
+  ],
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:@gotgenes/pi-permission-system@20.10.0\",\"scope\":\"user\"}": "20.10.0",
+    "{\"source\":\"git:github.com/1broseidon/ketch\",\"scope\":\"user\"}": "0.21.1",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.1"
+  }
+}

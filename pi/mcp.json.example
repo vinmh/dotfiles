@@ -1,0 +1,58 @@
+{
+  "mcpServers": {
+    "silverbullet": {
+      "url": "https://silverbullet-mcp.vinmh.lol/mcp",
+      "headers": {
+        "Authorization": "<REDACTED \u2014 copy from the live ~/.pi/agent/mcp.json>"
+      },
+      "timeout": 30,
+      "description": "Personal Silverbullet knowledge base: notes, journals, and space content.",
+      "exposure": "deferred",
+      "toolExposure": {
+        "read-note": "direct",
+        "read-multiple-notes": "direct",
+        "list-notes": "direct",
+        "search-notes": "direct"
+      },
+      "enabled": false
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@1.6.0",
+        "--executablePath=/usr/bin/chromium-browser",
+        "--headless=true",
+        "--isolated=true",
+        "--no-usage-statistics",
+        "--no-performance-crux"
+      ],
+      "timeout": 30,
+      "description": "Headless Chromium page inspection, console, network, performance, and Lighthouse.",
+      "exposure": "deferred",
+      "toolExposure": {
+        "list_pages": "direct",
+        "select_page": "direct",
+        "take_snapshot": "direct",
+        "take_screenshot": "direct",
+        "list_console_messages": "direct",
+        "get_console_message": "direct",
+        "list_network_requests": "direct",
+        "get_network_request": "direct",
+        "performance_analyze_insight": "direct",
+        "lighthouse_audit": "direct",
+        "wait_for": "direct"
+      }
+    },
+    "blender": {
+      "command": "uv",
+      "args": [
+        "run",
+        "blender-mcp"
+      ],
+      "cwd": "/home/vinmh/.local/share/pi/mcp-servers/blender-1.0.3",
+      "exposure": "deferred",
+      "description": "Blender scene inspection, Python API documentation, modelling, rendering, and viewport capture."
+    }
+  }
+}
