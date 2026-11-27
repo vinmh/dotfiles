@@ -1,7 +1,6 @@
-local opts = {
-    noremap = true,
-    silent = true
-}
+local function map(mode, lhs, rhs, desc)
+  vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc })
+end
 
 -----------------
 -- Normal Mode --
@@ -11,37 +10,35 @@ local opts = {
 vim.g.mapleader = " "
 
 -- Navigation
-vim.keymap.set('n', '<C-h>', '<C-w>h', opts)
-vim.keymap.set('n', '<C-j>', '<C-w>j', opts)
-vim.keymap.set('n', '<C-k>', '<C-w>k', opts)
-vim.keymap.set('n', '<C-l>', '<C-w>l', opts)
+map('n', '<C-h>', '<C-w>h', "Window left")
+map('n', '<C-j>', '<C-w>j', "Window down")
+map('n', '<C-k>', '<C-w>k', "Window up")
+map('n', '<C-l>', '<C-w>l', "Window right")
 
 -- Moving
-vim.keymap.set('n', '<C-S-h>', '<C-w>H', opts)
-vim.keymap.set('n', '<C-S-j>', '<C-w>J', opts)
-vim.keymap.set('n', '<C-S-k>', '<C-w>K', opts)
-vim.keymap.set('n', '<C-S-l>', '<C-w>L', opts)
+map('n', '<C-S-h>', '<C-w>H', "Move window left")
+map('n', '<C-S-j>', '<C-w>J', "Move window down")
+map('n', '<C-S-k>', '<C-w>K', "Move window up")
+map('n', '<C-S-l>', '<C-w>L', "Move window right")
 
 -- Resizing
-vim.keymap.set('n', '<C-Up>', ':vertical resize -2<CR>', opts)
-vim.keymap.set('n', '<C-Down>', ':resize +2<CR>', opts)
-vim.keymap.set('n', '<C-Left>', ':resize -2<CR>', opts)
-vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', opts)
+map('n', '<C-Up>', ':resize +2<CR>', "Increase window height")
+map('n', '<C-Down>', ':resize -2<CR>', "Decrease window height")
+map('n', '<C-Left>', ':vertical resize -2<CR>', "Decrease window width")
+map('n', '<C-Right>', ':vertical resize +2<CR>', "Increase window width")
 
 -- Telescope
-vim.keymap.set('n', '<C-p>',      '<cmd>Telescope find_files<CR>',           opts)
-vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>',            opts)
-vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>',              opts)
-vim.keymap.set('n', '<leader>fr', '<cmd>Telescope oldfiles<CR>',             opts)
-vim.keymap.set('n', '<leader>fd', '<cmd>Telescope diagnostics<CR>',          opts)
-vim.keymap.set('n', '<leader>fs', '<cmd>Telescope lsp_document_symbols<CR>', opts)
-vim.keymap.set('n', 'gr',         '<cmd>Telescope lsp_references<CR>',       opts)
-vim.keymap.set('n', 'gd',         '<cmd>Telescope lsp_definitions<CR>',      opts)
+map('n', '<C-p>',      '<cmd>Telescope find_files<CR>',           "Find files")
+map('n', '<leader>fg', '<cmd>Telescope live_grep<CR>',            "Live grep")
+map('n', '<leader>fb', '<cmd>Telescope buffers<CR>',              "Buffers")
+map('n', '<leader>fr', '<cmd>Telescope oldfiles<CR>',             "Recent files")
+map('n', '<leader>fd', '<cmd>Telescope diagnostics<CR>',          "Diagnostics")
+map('n', '<leader>fs', '<cmd>Telescope lsp_document_symbols<CR>', "Document symbols")
+-- LSP references on grr live in lsp.lua (buffer-local, on LspAttach)
 
 -----------------
 -- Visual Mode --
 -----------------
 
-vim.keymap.set('v', '<', '<gv', opts)
-vim.keymap.set('v', '>', '>gv', opts)
-
+map('v', '<', '<gv', "Indent left")
+map('v', '>', '>gv', "Indent right")

@@ -18,9 +18,10 @@ require('mason-lspconfig').setup({
     'rust_analyzer',
     'zls',
     'clangd',
-    'bashls'
+    'bashls',
+    'gopls'
   },
-  -- mason-lspconfig v2 auto-enables by default, but being explicit:
+  -- Enables every Mason-installed server; there is no separate vim.lsp.enable list
   automatic_enable = true
 })
 
@@ -28,11 +29,14 @@ local esp32 = require("esp32")
 local esp32_clangd_config = esp32.lsp_config()
 
 -- Global diagnostic keymaps (these don't need to be in on_attach)
-local opts = { noremap = true, silent = true }
-vim.keymap.set("n", "<Leader>e", vim.diagnostic.open_float, opts)
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-vim.keymap.set("n", "<Leader>q", vim.diagnostic.setloclist, opts)
+-- [d / ]d (diagnostic jumps) and K (hover) are Neovim defaults
+vim.keymap.set("n", "<Leader>e", vim.diagnostic.open_float, { silent = true, desc = "Show diagnostic" })
+vim.keymap.set("n", "<Leader>q", vim.diagnostic.setloclist, { silent = true, desc = "Diagnostics to loclist" })
+
+-- Formatting goes through conform, which falls back to the LSP formatter
+vim.keymap.set("n", "<Leader>cf", function()
+  require("conform").format({ async = true })
+end, { silent = true, desc = "Format buffer" })
 
 -- LspAttach autocmd replaces the on_attach function
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -40,49 +44,35 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
     local bufnr = ev.buf
 
-    -- Enable completion triggered by <c-x><c-o>
-    vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
-
     -- Enable inlay hints for rust_analyzer
     if client.name == "rust_analyzer" then
       vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
     end
 
     -- Buffer-local LSP keymaps
-    local bufopts = { noremap = true, silent = true, buffer = bufnr }
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-    vim.keymap.set("n", "<Leader>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-    vim.keymap.set("n", "<Leader>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
-    vim.keymap.set("n", "<Leader>wl", function()
+    local function map(lhs, rhs, desc)
+      vim.keymap.set("n", lhs, rhs, { silent = true, buffer = bufnr, desc = desc })
+    end
+    map("gD", vim.lsp.buf.declaration, "Go to declaration")
+    map("gd", vim.lsp.buf.definition, "Go to definition")
+    map("gi", vim.lsp.buf.implementation, "Go to implementation")
+    map("grr", "<cmd>Telescope lsp_references<CR>", "References (Telescope)")
+    map("<Leader>wa", vim.lsp.buf.add_workspace_folder, "Add workspace folder")
+    map("<Leader>wr", vim.lsp.buf.remove_workspace_folder, "Remove workspace folder")
+    map("<Leader>wl", function()
       print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, bufopts)
-    vim.keymap.set("n", "<Leader>D", vim.lsp.buf.type_definition, bufopts)
-    vim.keymap.set("n", "<Leader>rn", vim.lsp.buf.rename, bufopts)
-    vim.keymap.set("n", "<Leader>ca", vim.lsp.buf.code_action, bufopts)
-    vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-    vim.keymap.set("n", "<Leader>f", function()
-      vim.lsp.buf.format({ async = true })
-    end, bufopts)
+    end, "List workspace folders")
+    map("<Leader>D", vim.lsp.buf.type_definition, "Go to type definition")
+    map("<Leader>rn", vim.lsp.buf.rename, "Rename symbol")
+    map("<Leader>ca", vim.lsp.buf.code_action, "Code action")
   end,
 })
 
 -- Server-specific configurations using vim.lsp.config
--- lua_ls needs special configuration
+-- lua_ls: the Neovim API library comes from lazydev.nvim
 vim.lsp.config('lua_ls', {
   settings = {
     Lua = {
-      runtime = {
-        version = "LuaJIT",
-      },
-      diagnostics = {
-        globals = { "vim" },
-      },
-      workspace = {
-        library = vim.api.nvim_get_runtime_file("", true),
-      },
       telemetry = {
         enable = false,
       },
@@ -93,14 +83,3 @@ vim.lsp.config('lua_ls', {
 if esp32_clangd_config then
   vim.lsp.config('clangd', esp32_clangd_config)
 end
-
--- Enable all the servers
--- mason-lspconfig's automatic_enable should handle this, but if you want explicit control:
-vim.lsp.enable({
-  'pylsp',
-  'lua_ls',
-  'rust_analyzer',
-  'zls',
-  'clangd',
-  'bashls'
-})

@@ -8,6 +8,6 @@ local config_files = {
   'tree',
 }
 
-for n in pairs(config_files) do
-  require(config_files[n])
+for _, name in ipairs(config_files) do
+  require(name)
 end

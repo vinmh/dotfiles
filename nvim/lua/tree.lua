@@ -5,7 +5,6 @@ require("neo-tree").setup({
 })
 
 -- Keybindings
-local opts = { noremap = true, silent = true }
-vim.keymap.set('n', '<Leader>t', ':Neotree reveal toggle<CR>', opts)
-vim.keymap.set('n', '<Leader>g', ':Neotree git_status toggle float<CR>', opts)
-vim.keymap.set('n', '<Leader>\\', ':Neotree buffers toggle right<CR>', opts)
+vim.keymap.set('n', '<Leader>t', ':Neotree reveal toggle<CR>', { silent = true, desc = "File tree" })
+vim.keymap.set('n', '<Leader>g', ':Neotree git_status toggle float<CR>', { silent = true, desc = "Git status" })
+vim.keymap.set('n', '<Leader>\\', ':Neotree buffers toggle right<CR>', { silent = true, desc = "Buffer list" })

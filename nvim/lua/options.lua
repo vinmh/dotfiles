@@ -17,6 +17,12 @@ vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.showmode = false
 vim.opt.laststatus = 3
+vim.opt.signcolumn = 'yes' -- keep text from shifting when signs appear
+vim.opt.scrolloff = 8
+
+-- Editing
+vim.opt.undofile = true
+vim.opt.updatetime = 250 -- faster CursorHold (gitsigns, LSP highlights)
 
 -- Search
 vim.opt.incsearch = true

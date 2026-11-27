@@ -1,8 +1,13 @@
 #!/bin/bash
+# Sync machine-level dotfiles (~/scripts, ~/.vimrc) into ~/.dotfiles and push.
+#
+# nvim is NOT copied here anymore: ~/.config/nvim is a symlink into
+# ~/.dotfiles/nvim, so the repo IS the live config — edit it in place and
+# commit from the repo (or run this script, which commits everything).
+set -e
 REPO_URL="git@github.com:vinmh/dotfiles.git"
 DOTFILES_DIR=$HOME/.dotfiles
 SCRIPTS_DIR=$HOME/scripts
-NVIM_CONFIG_DIR=$HOME/.config/nvim
 VIMRC_PATH=$HOME/.vimrc
 CURRENT_DATE=$(date +"%Y-%m-%d")
 
@@ -16,10 +21,10 @@ elif cd $DOTFILES_DIR && ! git rev-parse --is-inside-work-tree; then
 fi
 
 cp -r $SCRIPTS_DIR $DOTFILES_DIR
-cp -r $NVIM_CONFIG_DIR $DOTFILES_DIR
 cp $VIMRC_PATH $DOTFILES_DIR
 
 cd $DOTFILES_DIR && \
-  git add $DOTFILES_DIR/. && \
-  git commit -m "Auto-update from $CURRENT_DATE" && \
-  git push origin main
+  git add -A && \
+  git commit -m "Auto-update from $CURRENT_DATE" || \
+  echo "nothing to commit"
+git push origin main

@@ -20,20 +20,44 @@ require("lazy").setup({
       require("config.lualine")
     end,
   },
-  {"onsails/lspkind.nvim", event = { "VimEnter" }}, -- VSCode-style pictograms
-  {"hrsh7th/nvim-cmp", dependencies = { -- Auto-completion Engine
-                  "lspkind.nvim",
-                  "hrsh7th/cmp-nvim-lsp", -- LSP Auto-Completion
-                  "hrsh7th/cmp-buffer", -- Buffer Auto-Completion
-                  "hrsh7th/cmp-path", -- Path Auto-Completion
-                  "hrsh7th/cmp-cmdline", -- CMDLine Auto-Completion
-          }, config = function()
-                  require("config.nvim-cmp")
-          end
+  {
+    "saghen/blink.cmp", -- Auto-completion Engine
+    version = "1.*", -- release tags ship a prebuilt fuzzy matcher
+    dependencies = { "L3MON4D3/LuaSnip" },
+    opts = function()
+      return require("config.blink-cmp")
+    end,
   },
   {"L3MON4D3/LuaSnip", version = "v2.*"}, -- Code Snippet Engine
-  "williamboman/mason.nvim", -- Package Manager
-  "williamboman/mason-lspconfig.nvim", -- LSP Package Installer
+  {
+    "stevearc/conform.nvim", -- Formatting
+    event = "BufWritePre",
+    cmd = "ConformInfo",
+    opts = function()
+      return require("config.conform")
+    end,
+  },
+  {
+    "lewis6991/gitsigns.nvim", -- Git change markers and hunk actions
+    event = { "BufReadPre", "BufNewFile" },
+    opts = function()
+      return require("config.gitsigns")
+    end,
+  },
+  {
+    "folke/which-key.nvim", -- Keymap hints
+    event = "VeryLazy",
+    opts = {
+      spec = {
+        { "<leader>c", group = "code" },
+        { "<leader>f", group = "find" },
+        { "<leader>h", group = "git hunk" },
+        { "<leader>w", group = "workspace" },
+      },
+    },
+  },
+  "mason-org/mason.nvim", -- Package Manager
+  "mason-org/mason-lspconfig.nvim", -- LSP Package Installer
   "neovim/nvim-lspconfig",
   {"nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
@@ -46,14 +70,25 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
-  config = function()
-      require("nvim-treesitter.configs").setup {
-	      ensure_installed = { 'vimdoc', 'vim', 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'cmake' },
-        sync_install = false,
-        highlight = { enable = true, },
-        indent = { enable = true},
-      }
+    config = function()
+      require("nvim-treesitter").install({
+        'vimdoc', 'vim', 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'cmake',
+        'markdown', 'markdown_inline',
+      })
+      -- The main branch no longer enables highlight/indent; start them per buffer
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(ev)
+          if not pcall(vim.treesitter.start, ev.buf) then return end
+          -- Only languages with indent queries; others keep their regular indent
+          local lang = vim.treesitter.language.get_lang(vim.bo[ev.buf].filetype)
+          if lang and vim.treesitter.query.get(lang, "indents") then
+            vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
     end
   },
   {
@@ -66,14 +101,16 @@ require("lazy").setup({
     end,
   },
   {
-    "coder/claudecode.nvim",
-    dependencies = { "folke/snacks.nvim" },
-    config = function()
-      require("config.claudecode")
-    end,
+    "Aietes/esp32.nvim"
   },
   {
-    "Aietes/esp32.nvim"
+    "folke/lazydev.nvim", -- lua_ls library for the Neovim API, loaded on demand
+    ft = "lua",
+    opts = {
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
   },
   {
     "MeanderingProgrammer/render-markdown.nvim",
@@ -101,4 +138,6 @@ require("lazy").setup({
       require("config.telescope")
     end,
   }
+}, {
+  rocks = { enabled = false }, -- no plugin needs luarocks
 })
