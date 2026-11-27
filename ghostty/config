@@ -56,7 +56,6 @@ font-family = IosevkaTerm Nerd Font Mono
 font-size = 13
 font-feature = +liga
 
-command = /bin/zsh
 working-directory = home
 
 window-padding-x = 8
