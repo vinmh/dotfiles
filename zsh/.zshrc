@@ -159,5 +159,5 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# SECRETS <MOVE THIS SOMEWHERE SOMEDAY PLEASE>
-export NEURALWATT_API_KEY="sk-924477152a42b973cf993e1ac72c4a5e210c3719e3b27a870cb174d6f6ec26c1"
+# secrets (API keys) live in ~/.zsh_secrets — gitignored, per machine
+[ -f "$HOME/.zsh_secrets" ] && source "$HOME/.zsh_secrets"
