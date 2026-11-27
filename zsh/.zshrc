@@ -13,6 +13,10 @@ export PATH
 
 
 # Path to your oh-my-zsh installation.
+# oh-my-zsh: momiji loads a manual clone; umbriel gets it declaratively
+# from programs.zsh.ohMyZsh in configuration.nix — its /etc/zshrc loads
+# OMZ before this file runs, so the plugin/theme setup must not repeat here.
+if [[ "$HOSTNAME" == momiji* ]]; then
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
@@ -81,6 +85,7 @@ ZSH_THEME="nebirhos"
 plugins=(git python zsh-autosuggestions direnv docker zoxide fzf)
 
 source $ZSH/oh-my-zsh.sh
+fi
 
 # --- momiji only: TPM re-enrollment for its two encrypted volumes ---
 if [[ "$HOSTNAME" == momiji* ]]; then
