@@ -83,7 +83,7 @@ plugins=(git python zsh-autosuggestions direnv docker zoxide fzf)
 source $ZSH/oh-my-zsh.sh
 
 # --- momiji only: TPM re-enrollment for its two encrypted volumes ---
-if [[ "$HOSTNAME" == momiji ]]; then
+if [[ "$HOSTNAME" == momiji* ]]; then
 reenroll_tpm () {
     echo "Enrolling for slow volume"
     sudo systemd-cryptenroll /dev/sda1 --wipe-slot=tpm2 --tpm2-device=auto --tpm2-pcrs=7
@@ -94,7 +94,7 @@ reenroll_tpm () {
 fi
 
 # --- momiji only: pyenv ---
-if [[ "$HOSTNAME" == momiji ]]; then
+if [[ "$HOSTNAME" == momiji* ]]; then
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
@@ -105,13 +105,13 @@ export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 fi
 
 # --- momiji only: logo + fortune ---
-if [[ "$HOSTNAME" == momiji ]]; then
+if [[ "$HOSTNAME" == momiji* ]]; then
 source "$HOME/.momiji_logo.sh"
 fortune -s
 fi
 
 # --- momiji only: Fedora / NVIDIA / ESP32 aliases ---
-if [[ "$HOSTNAME" == momiji ]]; then
+if [[ "$HOSTNAME" == momiji* ]]; then
 alias upgdsys="flatpak update && sudo dnf upgrade"
 alias primerun=__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
 alias get_idf='. $HOME/esp/v5.5/esp-idf/export.sh'
